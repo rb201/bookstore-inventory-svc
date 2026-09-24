@@ -55,20 +55,22 @@ async def receive_stock_of_item(id: str, inc_stock_quantity: int):
 
     return await inc_stock_of_item(id, stock_qty)
 
-async def sold_stock_of_item(id: str, sold_stock_quantity: int):
+async def sold_stock_of_item(id: str, stock_to_sell: int):
      #get current stock of item
     item_obj = await get_by_id(id)
-    if item_obj is None:
-        return {'msg': f"{id} does not exists"}
 
     old_stock_qty = item_obj.get('stock_quantity')
-    new_stock_qty = old_stock_qty - sold_stock_quantity
+    new_stock_qty = old_stock_qty - stock_to_sell
 
-    if new_stock_qty < 0:
-        return {"msg": f"we dont have that many stock. cur stock is {old_stock_qty}. tried to sell {stock_quantity}"}
+    if stock_to_sell > old_stock_qty:
+        # raise Exception({"INSUFFICIENT STOCK": f"Can not sell {stock_to_sell} of {id}. Only {old_stock_qty} available"})
+        raise HTTPException(
+            status_code = 422,
+            detail = {"INSUFFICIENT STOCK": f"Can not sell {stock_to_sell} of {id}. Only {old_stock_qty} available"})
+        # return {"msg": f"we dont have that many stock. cur stock is {old_stock_qty}. tried to sell {stock_quantity}"}
 
     stock_qty = {"stock_quantity": new_stock_qty}
 
     item_count_res = await dec_stock_of_item(id, stock_qty)
     if item_count_res.status_code == 200:
-        return {'msg': f"qty updated from {old_stock_qty} to {new_stock_qty} for {id}"}
+        return {'msg': f"{id} quatity updated from {old_stock_qty} to {new_stock_qty}"}

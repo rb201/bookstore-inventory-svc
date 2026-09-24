@@ -90,13 +90,6 @@ async def dec_stock_of_item(id: str, payload: int):
             json = payload
         )
 
-        if res.status_code == 404:
-            raise HTTPException(
-                status_code = 404,
-                detail = f"Unable to update stock quantity for {id}"
-            )
-
-        print(res.json())
         return res
 
 async def inc_stock_of_item(id: str, payload: dict):
@@ -107,12 +100,6 @@ async def inc_stock_of_item(id: str, payload: dict):
             url = url_builder,
             json = payload
         )
-
-        if res.status_code == 404:
-            raise HTTPException(
-                status_code = 404,
-                detail = f"Unable to update stock quantity for {id}"
-            )
 
         return res.json()
 

@@ -1,11 +1,11 @@
 import logging
 from typing import Optional
+
 import httpx
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from .inventory_repo import add_new_item, remove_an_item, inc_item_count
-
+from .inventory_repo import *
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,35 +29,45 @@ class UpdateItem(NewItem):
 
 app = FastAPI()
 
+# get inventory
+
 @app.get("/items")
-async def read_item():
-    async with httpx.AsyncClient() as client:
-        res = await client.get(f"http://localhost:3000/items/")
+async def get_items():
+    return await get_all_items()
 
-        return {'all items': res.json()}
-
+@app.get("/items/low-stock")
+async def low_inventory(stock_qty: int = 5):
+    return await get_items_low_in_stock(stock_qty)
 
 @app.get("/items/{id}")
-async def read_item(id):
-    async with httpx.AsyncClient() as client:
-        res = await client.get(f"http://localhost:3000/items/{id}")
+async def get_item(id):
+    return await get_by_id(id)
 
-        return res.json()
 
-@app.post('/add')
+# modify inv
+
+@app.post('/items')
 async def add_item(item: NewItem):
-    res = await add_new_item(item)
-    return res
+    return await add_new_item(item)
 
 @app.delete("/items/{id}")
 async def remove_item(id: str):
-    res = await remove_an_item(id)
-    return res
+    return await remove_an_item(id)
 
-@app.patch("/items/{id}")
-async def update_item(id, info: UpdateItem):
-    res = await inc_item_count(id, info)
-    return res
+
+#inv sold/receive
+
+@app.post("/items/{id}/receive")
+async def item_stock_receive(id: str, stock_quantity: int):
+    return await receive_stock_of_item(id, stock_quantity)
+
+@app.post("/items/{id}/sell")
+async def item_stock_sell(id: str, stock_quantity: int):
+    return await sold_stock_of_item(id, stock_quantity)
+
+@app.post("/items/{id}/adjust_stock")
+async def adjust_stock_count(id: str, stock_quantity: int):
+    pass
 
 @app.get("/")
 def get_root():

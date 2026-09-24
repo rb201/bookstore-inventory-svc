@@ -1,7 +1,7 @@
 import logging
 import json
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -10,7 +10,13 @@ url =  "http://localhost:3000"
 
 async def fetch_by_isbn(isbn: str):
     async with httpx.AsyncClient() as client:
-        res =  await client.get(f"http://localhost:3000/items?isbn={isbn}")
+        res = await client.get(f"http://localhost:3000/items?isbn={isbn}")
+
+        if res.status_code == 404:
+            raise HTTPException(
+                status_code = 404,
+                detail = f"ISBN {isbn} not found"
+            )
     
         return res.json()
 
@@ -19,7 +25,10 @@ async def fetch_by_id(id: str):
         res = await client.get(f"{url}/items/{id}")
 
         if res.status_code == 404:
-            return None
+            raise HTTPException(
+                status_code = 404,
+                detail = f"Item {id} not found"
+            )
 
         if (res.status_code == 200):
             return res.json()
@@ -28,13 +37,18 @@ async def fetch_all_items():
     async with httpx.AsyncClient() as client:
         res = await client.get(f"http://localhost:3000/items/")
 
+        if res.status_code == 404:
+            raise HTTPException(
+                status_code = 404,
+                detail = "Items not found",
+            )
+
         return res.json()
 
 async def post_new_item(item):
     async with httpx.AsyncClient() as client:
         try:
             payload = item.model_dump()
-            # print(payload)
 
             res = await client.post(
                 url = "http://localhost:3000/items",
@@ -76,16 +90,29 @@ async def dec_stock_of_item(id: str, payload: int):
             json = payload
         )
 
+        if res.status_code == 404:
+            raise HTTPException(
+                status_code = 404,
+                detail = f"Unable to update stock quantity for {id}"
+            )
+
         print(res.json())
         return res
 
 async def inc_stock_of_item(id: str, payload: dict):
     url_builder = f"{url}/items/{id}/"
+
     async with httpx.AsyncClient() as client:
         res = await client.patch(
             url = url_builder,
             json = payload
         )
+
+        if res.status_code == 404:
+            raise HTTPException(
+                status_code = 404,
+                detail = f"Unable to update stock quantity for {id}"
+            )
 
         return res.json()
 

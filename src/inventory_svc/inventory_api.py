@@ -61,6 +61,3 @@ async def item_stock_sell(id: str, stock_quantity: int):
 async def adjust_stock_count(id: str, stock_quantity: int):
     pass
 
-@app.get("/")
-def get_root():
-    return {"Hey": "...microservice!?"}

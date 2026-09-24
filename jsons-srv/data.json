@@ -1,0 +1,81 @@
+{
+  "health": "ok",
+  "items": [
+    {
+      "id": "BK-1001",
+      "title": "The Midnight Library",
+      "author": "Matt Haig",
+      "genre": "Fiction",
+      "price": 14.99,
+      "stock_quantity": 25,
+      "isbn": "978-0525559474",
+      "history": [
+        {}
+      ]
+    },
+    {
+      "id": "BK-1002",
+      "title": "Atomic Habits",
+      "author": "James Clear",
+      "genre": "Self-Help",
+      "price": 16.2,
+      "stock_quantity": 42,
+      "isbn": "978-0735211292"
+    },
+    {
+      "id": "BK-1003",
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "genre": "Sci-Fi",
+      "price": 10.99,
+      "stock_quantity": 18,
+      "isbn": "978-0441172719"
+    },
+    {
+      "id": "BK-1004",
+      "title": "Educated",
+      "author": "Tara Westover",
+      "genre": "Biography",
+      "price": 13.5,
+      "stock_quantity": 12,
+      "isbn": "978-0399590504"
+    },
+    {
+      "id": "BK-1005",
+      "title": "Thinking, Fast and Slow",
+      "author": "Daniel Kahneman",
+      "genre": "Psychology",
+      "price": 18,
+      "stock_quantity": 1,
+      "isbn": "978-0374533557"
+    },
+    {
+      "id": "BK-1006",
+      "title": "Project Hail Mary",
+      "author": "Andy Weir",
+      "genre": "Sci-Fi",
+      "price": 16.99,
+      "stock_quantity": 4,
+      "isbn": "978-0593135204"
+    },
+    {
+      "id": "BK-1007",
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "genre": "History",
+      "price": 22.99,
+      "stock_quantity": 6,
+      "isbn": "978-0062316097"
+    },
+    {
+      "title": "test",
+      "author": "person",
+      "genre": "buddhism",
+      "price": 5.99,
+      "stock_quantity": 20,
+      "isbn": "978-05se425559474",
+      "id": "9ay89ZnKrlo"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

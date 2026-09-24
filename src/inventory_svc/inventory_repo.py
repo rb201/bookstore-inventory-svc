@@ -12,27 +12,23 @@ async def get_by_isbn(isbn: str):
     async with httpx.AsyncClient() as client:
         res =  await client.get(f"http://localhost:3000/items?isbn={isbn}")
     
-        logger.info(res.json())
-        logger.info(res.status_code)
-    return res.json()
+        return res.json()
 
 async def get_by_id(id: str):
-    print('in get-by_id()')
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{url}/items/{id}")
 
-        # print(res)
         if res.status_code == 404:
             return None
-            print(res.status_code)
 
         if (res.status_code == 200):
-            print(f"id {id} found")
-            print(res.json())
             return res.json()
 
-def update_book_stock(id: str, quantity: int):
-    pass
+async def get_all_items():
+    async with httpx.AsyncClient() as client:
+        res = await client.get(f"http://localhost:3000/items/")
+
+        return res.json()
 
 async def post_new_item(item):
     async with httpx.AsyncClient() as client:
@@ -54,7 +50,6 @@ async def post_new_item(item):
         
         return
 
-
 async def add_new_item(item):
     # does this item exist
     does_isbn_exist = await get_by_isbn(item.isbn)
@@ -62,36 +57,9 @@ async def add_new_item(item):
 
     if not does_isbn_exist:
         post_res = await post_new_item(item)
-        return res
+        return post_res
     else:
         return {"err": f"item {item.isbn} already exists"}
-
-async def inc_item_count(id, info):
-    #does it exists
-    does_item_exist = await get_by_id(id)
-    print(does_item_exist)
-
-    if not does_item_exist:
-        return {'msg': f"{id} does not exist"}
-    
-    print("what i have", info.stock_quantity)
-    old_stock = info.stock_quantity
-    # get fields i need
-    cur_stock_quantity = does_item_exist.get("stock_quantity")
-    print(cur_stock_quantity)
-    cur_stock_quantity += old_stock
-
-    # async with httpx.AsyncClient() as client:
-    #     payload = {"stock_quantity": stock_quantity}
-    #     res = await client.patch(
-    #         url = f"{url}/items/{id}",
-    #         json = json.load(payload))
-
-    #     print(res.status_code)
-    #     if(res.status_code == 200):
-    #         return {'msg': f"{id} was updated"}
-
-    #     return {'msg': 'some problem arose'}
 
 async def remove_an_item(id):
     #check if exist
@@ -110,3 +78,57 @@ async def remove_an_item(id):
             return {'msg': 'unable to deltete'}
         return {'msg': f"{id} deleted"}
 
+async def sold_stock_of_item(id: str, sold_stock_quantity: int):
+    #get current stock of item
+    item_obj = await get_by_id(id)
+    if item_obj is None:
+        return {'msg': f"{id} does not exists"}
+
+    old_stock_qty = item_obj.get('stock_quantity')
+    new_stock_qty = old_stock_qty - sold_stock_quantity
+
+    if new_stock_qty < 0:
+        return {"msg": f"we dont have that many stock. cur stock is {old_stock_qty}. tried to sell {stock_quantity}"}
+
+    stock_qty = {"stock_quantity": new_stock_qty}
+
+    async with httpx.AsyncClient() as client:
+        url_builder = f"{url}/items/{id}/"
+        res = await client.patch(
+            url = url_builder,
+            json = stock_qty
+        )
+
+        print(res)
+        return {
+            f'msg': f"qty updated from {old_stock_qty} to {new_stock_qty} for {id}"
+        }
+
+async def receive_stock_of_item(id: str, inc_stock_quantity: int):
+    item_obj = await get_by_id(id)
+
+    if item_obj is None:
+        return {"msg": "this item doesnt exist"}
+
+    old_stock_qty = item_obj.get('stock_quantity')
+    new_stock_qty = old_stock_qty + inc_stock_quantity
+
+    stock_qty = {"stock_quantity": new_stock_qty}
+
+    url_builder = f"{url}/items/{id}/"
+    async with httpx.AsyncClient() as client:
+        res = await client.patch(
+            url = url_builder,
+            json = stock_qty
+        )
+
+        return {
+            f'msg': f"qty updated from {old_stock_qty} to {new_stock_qty} for {id}"
+        }
+
+async def get_items_low_in_stock(stock_qty):
+    res = await get_all_items()
+
+    low_stock_items = [ item for item in res if item.get("stock_quantity") <= 5 ]
+
+    return {"low_stock_items": low_stock_items}

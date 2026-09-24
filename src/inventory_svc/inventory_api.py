@@ -5,7 +5,7 @@ import httpx
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from .inventory_repo import *
+from .inventory_svc import *
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,14 +18,6 @@ class NewItem(BaseModel):
     stock_quantity: int
     isbn: str 
     # history: list[dict]
-
-class UpdateItem(NewItem):
-    title: Optional[str]
-    author: Optional[str]
-    genre: Optional[str]
-    price: Optional[float]
-    stock_quantity: Optional[int]
-    isbn: Optional[str]
 
 app = FastAPI()
 

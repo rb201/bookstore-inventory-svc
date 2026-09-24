@@ -8,3 +8,6 @@ wheels/
 
 # Virtual environments
 .venv
+
+# misc files
+src/inventory_svc/api.http

@@ -1,9 +1,7 @@
 import logging
-import json
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 url =  "http://localhost:3000"
@@ -13,6 +11,8 @@ async def fetch_by_isbn(isbn: str):
         res = await client.get(f"http://localhost:3000/items?isbn={isbn}")
 
         if res.status_code == 404:
+            logger.info(f"ISBN {isbn} not found")
+
             raise HTTPException(
                 status_code = 404,
                 detail = f"ISBN {isbn} not found"
@@ -25,15 +25,21 @@ async def fetch_by_id(id: str):
         res = await client.get(f"{url}/items/{id}")
 
         if res.status_code == 404:
+            logger.info(f"Item {id} not found")
+
             raise HTTPException(
                 status_code = 404,
                 detail = f"Item {id} not found"
             )
 
         if (res.status_code == 200):
+            logger.debug(f"Item {id} found")
+
             return res.json()
 
 async def fetch_all_items():
+    logger.debug("Fetching all items")
+
     async with httpx.AsyncClient() as client:
         res = await client.get(f"http://localhost:3000/items/")
 
@@ -45,6 +51,8 @@ async def fetch_all_items():
 
         return res.json()
 
+# TODO
+# cleanup function and exception handling
 async def post_new_item(item):
     async with httpx.AsyncClient() as client:
         try:
@@ -55,6 +63,7 @@ async def post_new_item(item):
                 json = payload
             )
             logger.info(res.status_code)
+            logger.info("New item was stored")
             return {'item': 'created'}
 
         except httpx.HTTPStatusError as exc:
@@ -65,23 +74,20 @@ async def post_new_item(item):
         return
 
 async def remove_item(id):
-    #check if exist
-    # print(f"id {id}")
-    # res = await get_by_id(id)
+    logger.debug(f"Removing item `{id}")
 
-    # if res is None:
-    #     logger.info("nothing to delete")
-    #     return {'msg': 'nothing to delete'}
-    
     async with httpx.AsyncClient() as client:
         res = await client.delete(f"{url}/items/{id}")
 
-        print(res.status_code)
         if(res.status_code == 404):
             return {'msg': 'unable to deltete'}
+
+        logger.info(f"{id} deleted")
+
         return {'msg': f"{id} deleted"}
 
 async def dec_stock_of_item(id: str, payload: int):
+    logger.debug(f"Decreasing item {id} stock")
     url_builder = f"{url}/items/{id}/"
 
     async with httpx.AsyncClient() as client:
@@ -89,10 +95,13 @@ async def dec_stock_of_item(id: str, payload: int):
             url = url_builder,
             json = payload
         )
+
+        logger.error(f"{id} quantity decreased to {payload.get("stock_quantity")}")
 
         return res
 
 async def inc_stock_of_item(id: str, payload: dict):
+    logger.debug(f"Increasing item {id} stock")
     url_builder = f"{url}/items/{id}/"
 
     async with httpx.AsyncClient() as client:
@@ -101,11 +110,6 @@ async def inc_stock_of_item(id: str, payload: dict):
             json = payload
         )
 
+        logger.error(f"{id} quantity increased to {payload.get("stock_quantity")}")
+
         return res.json()
-
-# async def get_items_low_in_stock(stock_qty):
-#     res = await get_all_items()
-
-#     low_stock_items = [ item for item in res if item.get("stock_quantity") <= 5 ]
-
-#     return {"low_stock_items": low_stock_items}

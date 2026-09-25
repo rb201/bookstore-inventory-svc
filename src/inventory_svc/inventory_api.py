@@ -1,16 +1,12 @@
 import logging
-from typing import Optional
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from .inventory_svc import *
-from .logging_config import configure_logging
+from inventory_svc.inventory_svc import *
 
 logger = logging.getLogger(__name__)
-
-configure_logging()
 
 class NewItem(BaseModel):
     title: str

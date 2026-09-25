@@ -1,6 +1,6 @@
 import logging
 
-from .inventory_json_server_repo import *
+from inventory_svc.inventory_json_server_repo import *
 
 logger = logging.getLogger(__name__)
 

@@ -44,8 +44,6 @@ async def add_new_item(item):
         )
 
 async def remove_an_item(id):
-    # logger.info(f"Checking to see if Book ID `{id}` exists")
-
     res = await get_by_id(id)
 
     if res is None:
@@ -70,8 +68,6 @@ async def receive_stock_of_item(id: str, inc_stock_quantity: int):
             }
         )
 
-    # logger.info(f"Checking to see if Book ID `{id}` exists")
-
     item_obj = await get_by_id(id)
 
     if item_obj is None:
@@ -88,8 +84,6 @@ async def receive_stock_of_item(id: str, inc_stock_quantity: int):
     return await inc_stock_of_item(id, stock_qty)
 
 async def sold_stock_of_item(id: str, stock_to_sell: int):
-    # logger.info(f"Checking to see if Book ID `{id}` exists")
-
     item_obj = await get_by_id(id)
 
     cur_stock_qty = item_obj.get('stock_quantity')

@@ -88,6 +88,7 @@ async def remove_item(id):
 
 async def dec_stock_of_item(id: str, payload: int):
     logger.debug(f"Decreasing item {id} stock")
+
     url_builder = f"{url}/items/{id}/"
 
     async with httpx.AsyncClient() as client:
@@ -102,6 +103,7 @@ async def dec_stock_of_item(id: str, payload: int):
 
 async def inc_stock_of_item(id: str, payload: dict):
     logger.debug(f"Increasing item {id} stock")
+
     url_builder = f"{url}/items/{id}/"
 
     async with httpx.AsyncClient() as client:

@@ -2,20 +2,11 @@ import logging
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
-from pydantic import BaseModel
 
 from inventory_svc.inventory_svc import *
+from inventory_svc.schemas import NewItem
 
 logger = logging.getLogger(__name__)
-
-class NewItem(BaseModel):
-    title: str
-    author: str
-    genre: str
-    price: float
-    stock_quantity: int
-    isbn: str 
-    # history: list[dict]
 
 app = FastAPI()
 app.add_middleware(CorrelationIdMiddleware)

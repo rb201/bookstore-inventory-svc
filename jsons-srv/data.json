@@ -75,6 +75,24 @@
       "stock_quantity": 20,
       "isbn": "978-05se425559474",
       "id": "9ay89ZnKrlo"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "genre": "History",
+      "price": 22.99,
+      "stock_quantity": 7,
+      "isbn": "978-00623160ss97",
+      "id": "KQbgX0ENI8s"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "genre": "History",
+      "price": 22.99,
+      "stock_quantity": 7,
+      "isbn": "978-00623160ss97xxxxxxx",
+      "id": "oEjab9DuZug"
     }
   ],
   "orders": [
@@ -86,7 +104,7 @@
       "order_info": {
         "total_items": 3,
         "total_price": 19.95,
-        "item": [
+        "items": [
           {
             "book_id": "BK-1001",
             "title": "Python Fundamentals",

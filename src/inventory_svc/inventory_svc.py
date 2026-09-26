@@ -24,24 +24,17 @@ async def get_by_isbn(isbn: str):
     return await fetch_by_isbn(isbn)
 
 async def add_new_item(item):
-    logger.info(f"Checking to see if ISBN {item.isbn} already exists for new item")
+    logger.info(f"Checking to see if ISBN {item.isbn} already exists")
     does_isbn_exist = await get_by_isbn(item.isbn)
 
-    if not does_isbn_exist:
-        logger.info("Added new item to inventory")
+    if does_isbn_exist is None:
+        logger.info("Adding new item to inventory")
         post_res = await post_new_item(item)
 
         return post_res
-    else:
-        logger.info(f"New item's ISBN `{item.isbn}` already exists")
 
-        raise HTTPException(
-            status_code = 422,
-            detail = {
-                "error": "ITEM_EXIST",
-                "msg": f"item {item.isbn} already exists"
-            }
-        )
+    logger.info(f"New item's ISBN `{item.isbn}` already exists")
+    return
 
 async def remove_an_item(id):
     res = await get_by_id(id)

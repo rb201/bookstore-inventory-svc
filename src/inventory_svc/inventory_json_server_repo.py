@@ -10,14 +10,11 @@ async def fetch_by_isbn(isbn: str):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"http://localhost:3000/items?isbn={isbn}")
 
-        if res.status_code == 404:
+        # if able to retrieve and the obj is empty `[]`
+        if res.status_code == 200 and not res.json():
             logger.info(f"ISBN {isbn} not found")
 
-            raise HTTPException(
-                status_code = 404,
-                detail = f"ISBN {isbn} not found"
-            )
-    
+            return None
         return res.json()
 
 async def fetch_by_id(id: str):

@@ -34,7 +34,18 @@ async def get_item(id):
 @app.post('/items')
 async def add_item(item: NewItem):
     logger.info(f"Request received to add new item received. Book ID: `{item}`")
-    return await add_new_item(item)
+    res = await add_new_item(item)
+
+    if res is None:
+        raise HTTPException(
+            status_code = 422,
+            detail = {
+                "error": "ITEM_EXIST",
+                "msg": f"item {item.isbn} already exists"
+            }
+        )
+
+    return res
 
 @app.delete("/items/{id}")
 async def remove_item(id: str):

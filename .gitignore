@@ -11,3 +11,4 @@ wheels/
 
 # misc files
 src/inventory_svc/api.http
+jsons-srv/node_modules

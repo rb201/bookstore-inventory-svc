@@ -94,7 +94,7 @@ async def dec_stock_of_item(id: str, payload: int):
             json = payload
         )
 
-        logger.error(f"{id} quantity decreased to {payload.get("stock_quantity")}")
+        logger.info(f"{id} quantity decreased to {payload.get("stock_quantity")}")
 
         return res
 
@@ -109,6 +109,6 @@ async def inc_stock_of_item(id: str, payload: dict):
             json = payload
         )
 
-        logger.error(f"{id} quantity increased to {payload.get("stock_quantity")}")
+        logger.info(f"{id} quantity increased to {payload.get("stock_quantity")}")
 
         return res.json()

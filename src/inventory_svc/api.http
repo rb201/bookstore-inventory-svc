@@ -63,7 +63,7 @@ GET http://localhost:8001/orders HTTP/1.1
 ###
 GET http://localhost:8001/orders?user_id=user01 HTTP/1.1
 ###
-GET http://localhost:3000/items?id=BK-1003 HTTP/1.1
+# GET http://localhost:3000/items?id=BK-10203 HTTP/1.1
 
 ###
 GET http://localhost:3000/orders/order01 HTTP/1.1
@@ -145,11 +145,9 @@ content-type: application/json
 
 ###
 
-POST http://localhost:8001/orders/sV9gfJhqUCI/cancel HTTP/1.1
+POST http://localhost:8001/orders/fTTnCCCVF2s/cancel HTTP/1.1
 
 ###
 
 POST http://localhost:8000/items/BK-1001/sell HTTP/1.1
 content-type: application/json
-
-{"stock_quantity": 3}

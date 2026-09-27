@@ -1,3 +1,5 @@
+# TODO MOVE ALL HTTPEXCEPTIONS TO API LAYER
+
 import logging
 import httpx
 from fastapi import HTTPException
@@ -34,7 +36,7 @@ async def fetch_by_id(id: str):
 
             return res.json()
 
-async def fetch_all_items():
+async def get_items():
     logger.debug("Fetching all items")
 
     async with httpx.AsyncClient() as client:

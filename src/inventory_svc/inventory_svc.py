@@ -1,11 +1,12 @@
+# TODO MOVE ALL HTTPEXCEPTIONS TO API LAYER
 import logging
 
-from inventory_svc.inventory_json_server_repo import *
+from . import inventory_json_server_repo as inv_repo
 
 logger = logging.getLogger(__name__)
 
 async def get_all_items():
-    return await fetch_all_items()
+    return await inv_repo.get_all_items()
 
 async def get_items_low_in_stock(stock_qty):
     logger.info("Fetching low-stock items")
@@ -18,10 +19,10 @@ async def get_items_low_in_stock(stock_qty):
 
 async def get_by_id(id: str):
     logger.info(f"Fetching item `{id}`")
-    return await fetch_by_id(id)
+    return await inv_repo.fetch_by_id(id)
 
 async def get_by_isbn(isbn: str):
-    return await fetch_by_isbn(isbn)
+    return await inv_repo.get_by_isbn(isbn)
 
 async def add_new_item(item):
     logger.info(f"Checking to see if ISBN {item.isbn} already exists")
@@ -29,14 +30,14 @@ async def add_new_item(item):
 
     if does_isbn_exist is None:
         logger.info("Adding new item to inventory")
-        post_res = await post_new_item(item)
+        post_res = await inv_repo.post_new_item(item)
 
         return post_res
 
     logger.info(f"New item's ISBN `{item.isbn}` already exists")
     return
 
-async def remove_an_item(id):
+async def remove_item(id):
     res = await get_by_id(id)
 
     if res is None:
@@ -74,7 +75,7 @@ async def receive_stock_of_item(id: str, inc_stock_quantity: int):
 
     stock_qty = {"stock_quantity": new_stock_qty}
 
-    return await inc_stock_of_item(id, stock_qty)
+    return await inv_repo.inc_stock_of_item(id, stock_qty)
 
 async def sold_stock_of_item(id: str, stock_to_sell: int):
     item_obj = await get_by_id(id)
@@ -97,7 +98,7 @@ async def sold_stock_of_item(id: str, stock_to_sell: int):
 
     stock_qty_payload = {"stock_quantity": new_stock_qty}
 
-    item_count_res = await dec_stock_of_item(id, stock_qty_payload)
+    item_count_res = await inv_repo.dec_stock_of_item(id, stock_qty_payload)
 
     if item_count_res.status_code == 200:
         return {'msg': f"{id} quatity updated from {cur_stock_qty} to {new_stock_qty}"}

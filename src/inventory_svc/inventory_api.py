@@ -9,7 +9,10 @@ from inventory_svc.schemas import NewItem
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-app.add_middleware(CorrelationIdMiddleware)
+app.add_middleware(
+    CorrelationIdMiddleware,
+    header_name = 'X-Correlation-ID',
+)
 
 # get inventory
 

@@ -1,0 +1,155 @@
+
+GET http://localhost:8000/items HTTP/1.1
+
+###
+
+GET http://localhost:8000/items/BK-1004 HTTP/1.1
+
+###
+
+###
+
+POST http://localhost:8000/items HTTP/1.1
+content-type: application/json
+
+{
+    "title": "test",
+    "author": "person",
+    "genre": "buddhism",
+    "price": "5.99",
+    "stock_quantity": "20",
+    "isbn": "978-05se425559474"
+}
+
+###
+
+DELETE  http://localhost:8000/items/SRlgSuGlGn8 HTTP/1.1
+
+###
+
+PATCH http://localhost:8000/items/BK-1007 HTTP/1.1
+content-type: application/json
+
+{ 
+    "title": "Sapiens",
+    "author": "Yuval Noah Harari",
+    "genre": "History",
+    "price": 22.99,
+    "isbn": "978-0062316097",
+    "stock_quantity": "20"
+}
+
+###
+
+POST http://localhost:8000/items/BK-1007/sell?stock_quantity=1 HTTP/1.1
+# content-type: application/json
+
+# {
+#     "stock_quantity": 10
+# }
+
+###
+
+POST http://localhost:8000/items/BK-1007/receive?stock_quantity=1 HTTP/1.1
+
+###
+
+GET http://localhost:8000/items/low-stock HTTP/1.1
+
+###
+
+GET http://localhost:8001/orders HTTP/1.1
+
+###
+GET http://localhost:8001/orders?user_id=user01 HTTP/1.1
+###
+GET http://localhost:3000/items?id=BK-1003 HTTP/1.1
+
+###
+GET http://localhost:3000/orders/order01 HTTP/1.1
+
+###
+
+GET http://localhost:8001/orders/order031 HTTP/1.1
+
+
+###
+#bad order
+POST http://localhost:8001/orders HTTP/1.1
+content-type: application/json
+
+{
+      "user_id": "user02",
+      "status": "pending",
+      "created_at": "2026-09-25T10:15:00Z",
+    
+      "order_info": {
+        "total_items": 3,
+        "total_price": 19.95,
+    
+        "items": [
+          {
+            "book_id": "BK-1003",
+            "title": "GoLang Fundamentals",
+            "isbn": "123456789",
+            "price": 5.99,
+            "quantity": 2,
+            "subtotal": 11.98
+          },
+          {
+            "book_id": "BK-1302",
+            "title": "Buddhism For Dummies",
+            "isbn": "987654321",
+            "price": 7.97,
+            "quantity": 1,
+            "subtotal": 7.97
+          }
+        ]
+      }
+    }
+###
+#good order
+
+POST http://localhost:8001/orders HTTP/1.1
+content-type: application/json
+
+{
+    "user_id": "user02",
+    "status": "created",
+    "created_at": "2026-09-25T10:15:00Z",
+
+    "order_info": {
+        "total_items": 3,
+        "total_price": 19.95,
+
+        "items": [
+            {
+            "book_id": "BK-1002",
+            "title": "GoLang Fundamentals",
+            "isbn": "123456789",
+            "price": 5.99,
+            "quantity": 2,
+            "subtotal": 11.98
+            },
+            {
+            "book_id": "BK-1001",
+            "title": "Buddhism For Dummies",
+            "isbn": "987654321",
+            "price": 7.97,
+            "quantity": 1,
+            "subtotal": 7.97
+            }
+        ]
+    }
+}
+
+###
+
+POST http://localhost:8001/orders/sV9gfJhqUCI/cancel HTTP/1.1
+
+###
+
+POST http://localhost:8000/items/BK-1001/sell HTTP/1.1
+content-type: application/json
+
+{"stock_quantity": 3}

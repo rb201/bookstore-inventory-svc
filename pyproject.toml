@@ -11,6 +11,8 @@ dependencies = [
     "asgi-correlation-id>=5.0.1",
     "fastapi[standard]>=0.141.1",
     "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "pytest-mock>=3.16.0",
 ]
 
 [project.scripts]

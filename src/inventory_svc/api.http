@@ -131,7 +131,7 @@ content-type: application/json
             "title": "GoLang Fundamentals",
             "isbn": "123456789",
             "price": 5.99,
-            "quantity": 2,
+            "quantity": 222,
             "subtotal": 11.98
             },
             {
@@ -177,3 +177,13 @@ POST http://localhost:8000/items/BK-1002/receive?stock_quantity=10 HTTP/1.1
 
 ###
 POST http://localhost:8000/items/BK-1002/sell?stock_quantity=10 HTTP/1.1
+
+
+###
+
+GET http://localhost:8001/orders/order01 HTTP/1.1
+
+###
+
+POST http://localhost:8001/orders/order02/cancel HTTP/1.1
+

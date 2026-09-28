@@ -4,6 +4,8 @@ import logging
 
 import httpx
 
+from .exceptions import JsonServerRepoError
+
 logger = logging.getLogger(__name__)
 
 url =  "http://localhost:3000"
@@ -68,7 +70,7 @@ async def remove_item(id):
         res = await client.delete(f"{url}/items/{id}")
 
         if(res.status_code == 404):
-            return {'msg': 'unable to deltete'}
+            return None
 
         logger.info(f"{id} deleted")
 
@@ -79,27 +81,33 @@ async def dec_stock_of_item(id: str, payload: int):
 
     url_builder = f"{url}/items/{id}/"
 
-    async with httpx.AsyncClient() as client:
-        res = await client.patch(
-            url = url_builder,
-            json = payload
-        )
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.patch(
+                url = url_builder,
+                json = payload
+            )
 
-        logger.info(f"{id} quantity decreased to {payload.get("stock_quantity")}")
+            logger.info(f"{id} quantity decreased to {payload.get("stock_quantity")}")
 
-        return res
+            return res
+    except httpx.HTTPError as err:
+        raise JsonServerRepoError(f"Dont know what happened, {err}")
 
 async def inc_stock_of_item(id: str, payload: dict):
     logger.debug(f"Increasing item {id} stock")
 
     url_builder = f"{url}/items/{id}/"
 
-    async with httpx.AsyncClient() as client:
-        res = await client.patch(
-            url = url_builder,
-            json = payload
-        )
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.patch(
+                url = url_builder,
+                json = payload
+            )
 
-        logger.info(f"{id} quantity increased to {payload.get("stock_quantity")}")
+            logger.info(f"{id} quantity increased to {payload.get("stock_quantity")}")
 
-        return res.json()
+            return res.json()
+    except httpx.HTTPError as err:
+        raise JsonServerRepoError(f"Dont know what happened, {err}")

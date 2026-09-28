@@ -15,20 +15,10 @@ app.add_middleware(
     header_name = 'X-Correlation-ID',
 )
 
-# get inventory
-
-@app.exception_handler(exceptions.ItemByIdNotFound)
-async def item_by_id_not_found(request, err):
-    return JSONResponse(
-        status_code = err.status_code,
-        content = {
-            "error": "ItemByIdNotFound",
-            "msg": err.msg
-        }
-    )
+exceptions.register_exception_handlers(app)
 
 @app.get("/items")
-async def get_items():
+async def get_all_items():
     logger.info("Request received to fetch all items")
     res = await inventory_svc.get_all_items()
 
@@ -74,39 +64,21 @@ async def get_item(id):
     res = await inventory_svc.get_by_id(id)
 
     if res is None:
-        raise HTTPException(
-            status_code = 404,
-            detail = {
-                "error": "ITEM_NOT_FOUND",
-                "msg": f"Item {id} not found"
-            }
+        raise exceptions.ItemByIdNotFound(
+            item_id = id,
+            detail = ""
         )
-
     return res
-
-
 # modify inv
 
 @app.post('/items')
 async def add_new_item(item: NewItem):
     logger.info(f"Request received to add new item received. Book ID: `{item}`")
-    res = await inventory_svc.add_new_item(item)
-
-    if res is None:
-        raise HTTPException(
-            status_code = 422,
-            detail = {
-                "error": "ITEM_EXIST",
-                "msg": f"item {item.isbn} already exists"
-            }
-        )
-
-    return res
+    return await inventory_svc.add_new_item(item)
 
 @app.delete("/items/{id}")
 async def remove_item(id: str):
     logger.info(f"Request received to remove item: `{id}`")
-
     return await inventory_svc.remove_item(id)
 
 
@@ -115,18 +87,7 @@ async def remove_item(id: str):
 @app.post("/items/{id}/receive")
 async def item_stock_receive(id: str, stock_quantity: int):
     logger.info(f"Request received to increase item {id} stock by {stock_quantity}")
-    res = await inventory_svc.receive_stock_of_item(id, stock_quantity)
-
-    if res.get("error") == "QUANTITY_LESS_THAN_ONE":
-        raise HTTPException(
-            status_code = 422,
-            detail = {
-                "error": "INVALID_QUANTITY",
-                "msg": f"Must provide a number greater than one."
-            }
-        )
-
-    return res
+    return await inventory_svc.receive_stock_of_item(id, stock_quantity)
 
 @app.post("/items/{id}/sell")
 async def item_stock_sell(id: str, stock_quantity: int):

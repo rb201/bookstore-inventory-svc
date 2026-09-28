@@ -159,3 +159,18 @@ GET http://localhost:8000/items HTTP/1.1
 ###
 
 GET http://localhost:8000/items/BK-1001 HTTP/1.1
+
+###
+#good req
+GET http://localhost:8000/items/BK-1001 HTTP/1.1
+
+###
+#bad req
+GET http://localhost:8000/items/BK-1001 HTTP/1.1
+
+###
+
+POST http://localhost:8000/items/BK-1002/receive?stock_quantity=10 HTTP/1.1
+
+###
+POST http://localhost:8000/items/BK-1002/sell?stock_quantity=10 HTTP/1.1

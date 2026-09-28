@@ -2,8 +2,9 @@ import logging
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 
-from . import inventory_svc
+from . import inventory_svc, exceptions
 from inventory_svc.schemas import NewItem
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,16 @@ app.add_middleware(
 )
 
 # get inventory
+
+@app.exception_handler(exceptions.ItemByIdNotFound)
+async def item_by_id_not_found(request, err):
+    return JSONResponse(
+        status_code = err.status_code,
+        content = {
+            "error": "ItemByIdNotFound",
+            "msg": err.msg
+        }
+    )
 
 @app.get("/items")
 async def get_items():
@@ -94,9 +105,9 @@ async def add_new_item(item: NewItem):
 
 @app.delete("/items/{id}")
 async def remove_item(id: str):
-    logger.info(f"Request received to remove item received: `{id}`")
+    logger.info(f"Request received to remove item: `{id}`")
 
-    return await inventory_svc.remove_an_item(id)
+    return await inventory_svc.remove_item(id)
 
 
 #inv sold/receive

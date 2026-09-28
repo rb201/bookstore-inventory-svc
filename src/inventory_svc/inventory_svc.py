@@ -2,6 +2,8 @@ import logging
 
 from . import inventory_json_server_repo as inv_repo
 
+from . import exceptions
+
 logger = logging.getLogger(__name__)
 
 async def get_all_items():
@@ -43,11 +45,11 @@ async def remove_item(id):
 
     if res is None:
         logger.info(f"{id} does not exist. Nothing to delete")
-
-        return {
-            "info": "ITEM_DOES_NOT_EXIST",
-            'msg': 'nothing to delete'
-        }
+        raise exceptions.ItemByIdNotFound(
+            status_code = 404,
+            item_id = id,
+            detail = "Item can not be deleted"
+        )
 
     return await remove_item(id)
 

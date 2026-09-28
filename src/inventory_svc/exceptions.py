@@ -34,7 +34,7 @@ class QuantityInvalid(Exception):
 
 
 class JsonServerRepoError(Exception):
-    def __init__(self, detail: str):
+    def __init__(self, detail: str, status_code: int = 500):
         self.detail = detail
         self.msg = f"Repo error. {detail}"
 
@@ -70,7 +70,7 @@ async def quantity_invalid_handler(request, err):
 
 async def json_server_repo_error_handler(req, err):
     return JSONResponse(
-        status_code = 500,
+        status_code = err.status_code,
         content = {
             "error": "REPO_ERROR",
             "detail": err.msg

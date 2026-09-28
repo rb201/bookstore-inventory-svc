@@ -151,3 +151,11 @@ POST http://localhost:8001/orders/fTTnCCCVF2s/cancel HTTP/1.1
 
 POST http://localhost:8000/items/BK-1001/sell HTTP/1.1
 content-type: application/json
+
+###
+
+GET http://localhost:8000/items HTTP/1.1
+
+###
+
+GET http://localhost:8000/items/BK-1001 HTTP/1.1

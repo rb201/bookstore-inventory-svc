@@ -1,7 +1,7 @@
 import logging
 
 from asgi_correlation_id import CorrelationIdMiddleware
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from . import inventory_svc
 from inventory_svc.schemas import NewItem
@@ -19,17 +19,59 @@ app.add_middleware(
 @app.get("/items")
 async def get_items():
     logger.info("Request received to fetch all items")
-    return await inventory_svc.get_items()
+    res = await inventory_svc.get_all_items()
+
+    if not res:
+        raise HTTPException(
+            status_code = 404,
+            detail = {
+                "info": "ITEMS_NOT_FOUND",
+                "msg": "There were no items returned"
+            }
+        )
+
+    if res is None:
+        raise HTTPException(
+            status_code = 404,
+            detail = {
+                "error": "URL_NOT_FOUND?",
+                "msg": f"URL {res.url} is not avail"
+            }
+        )
+
+    return res
 
 @app.get("/items/low-stock")
 async def low_inventory(stock_qty: int = 5):
     logger.info("Request received to fetch low-stock items")
-    return await inventory_svc.get_items_low_in_stock(stock_qty)
+    res = await inventory_svc.get_items_low_in_stock(stock_qty)
+
+    if res is None:
+        raise HTTPException(
+            status_code = 404,
+            detail = {
+                "error": "URL_NOT_FOUND?",
+                "msg": f"URL {res.url} is not avail"
+            }
+        )
+
+    return res
 
 @app.get("/items/{id}")
 async def get_item(id):
     logger.info(f"Request received to fetch item `{id}`")
-    return await inventory_svc.get_by_id(id)
+    res = await inventory_svc.get_by_id(id)
+
+    if res is None:
+        raise HTTPException(
+            status_code = 404,
+            detail = {
+                "error": "ITEM_NOT_FOUND",
+                "msg": f"Item {id} not found"
+            }
+        )
+
+    return res
 
 
 # modify inv
@@ -62,7 +104,18 @@ async def remove_item(id: str):
 @app.post("/items/{id}/receive")
 async def item_stock_receive(id: str, stock_quantity: int):
     logger.info(f"Request received to increase item {id} stock by {stock_quantity}")
-    return await inventory_svc.receive_stock_of_item(id, stock_quantity)
+    res = await inventory_svc.receive_stock_of_item(id, stock_quantity)
+
+    if res.get("error") == "QUANTITY_LESS_THAN_ONE":
+        raise HTTPException(
+            status_code = 422,
+            detail = {
+                "error": "INVALID_QUANTITY",
+                "msg": f"Must provide a number greater than one."
+            }
+        )
+
+    return res
 
 @app.post("/items/{id}/sell")
 async def item_stock_sell(id: str, stock_quantity: int):

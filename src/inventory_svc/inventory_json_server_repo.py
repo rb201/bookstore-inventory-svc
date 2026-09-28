@@ -1,14 +1,14 @@
 # TODO MOVE ALL HTTPEXCEPTIONS TO API LAYER
 
 import logging
+
 import httpx
-from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
 
 url =  "http://localhost:3000"
 
-async def fetch_by_isbn(isbn: str):
+async def get_by_isbn(isbn: str):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"http://localhost:3000/items?isbn={isbn}")
 
@@ -19,58 +19,47 @@ async def fetch_by_isbn(isbn: str):
             return None
         return res.json()
 
-async def fetch_by_id(id: str):
+async def get_by_id(id: str):
     async with httpx.AsyncClient() as client:
         res = await client.get(f"{url}/items/{id}")
 
         if res.status_code == 404:
             logger.info(f"Item {id} not found")
-
-            raise HTTPException(
-                status_code = 404,
-                detail = f"Item {id} not found"
-            )
-
-        if (res.status_code == 200):
-            logger.debug(f"Item {id} found")
-
-            return res.json()
-
-async def get_items():
-    logger.debug("Fetching all items")
-
-    async with httpx.AsyncClient() as client:
-        res = await client.get(f"http://localhost:3000/items/")
-
-        if res.status_code == 404:
-            raise HTTPException(
-                status_code = 404,
-                detail = "Items not found",
-            )
+            return None
 
         return res.json()
 
-# TODO
-# cleanup function and exception handling
+async def get_all_items():
+    logger.debug("Fetching all items")
+
+    async with httpx.AsyncClient() as client:
+        res = await client.get(f"http://localhost:3000/items2/")
+
+        if res.status_code == 200 and not res.json():
+            logger.info("No items found")
+            return res
+
+        # needs testing
+        if res.status_code == 404:
+            logger.error(f"Not found, {res.url}")
+            return None
+
+        return res.json()
+
+# this needs testing
 async def post_new_item(item):
     async with httpx.AsyncClient() as client:
-        try:
-            payload = item.model_dump()
+        payload = item.model_dump()
 
-            res = await client.post(
-                url = "http://localhost:3000/items",
-                json = payload
-            )
-            logger.info(res.status_code)
-            logger.info("New item was stored")
-            return {'item': 'created'}
+        res = await client.post(
+            url = "http://localhost:3000/items",
+            json = payload
+        )
 
-        except httpx.HTTPStatusError as exc:
-            print(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}.")
-        except httpx.RequestError as exc:
-            print(f"An error occurred while requesting {exc.request.url!r}.")
-        
-        return
+        logger.info("New item was stored")
+
+        return res
+
 
 async def remove_item(id):
     logger.debug(f"Removing item `{id}")

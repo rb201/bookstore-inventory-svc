@@ -1,4 +1,3 @@
-# TODO MOVE ALL HTTPEXCEPTIONS TO API LAYER
 import logging
 
 from . import inventory_json_server_repo as inv_repo
@@ -13,13 +12,15 @@ async def get_items_low_in_stock(stock_qty):
 
     res = await get_all_items()
 
+    if res is None: return None
+
     low_stock_items = [ item for item in res if item.get("stock_quantity") <= 5 ]
 
     return {"low_stock_items": low_stock_items}
 
 async def get_by_id(id: str):
     logger.info(f"Fetching item `{id}`")
-    return await inv_repo.fetch_by_id(id)
+    return await inv_repo.get_by_id(id)
 
 async def get_by_isbn(isbn: str):
     return await inv_repo.get_by_isbn(isbn)
@@ -29,7 +30,7 @@ async def add_new_item(item):
     does_isbn_exist = await get_by_isbn(item.isbn)
 
     if does_isbn_exist is None:
-        logger.info("Adding new item to inventory")
+        logger.info(f"Adding new item {item.id} to inventory")
         post_res = await inv_repo.post_new_item(item)
 
         return post_res
@@ -48,19 +49,12 @@ async def remove_item(id):
             'msg': 'nothing to delete'
         }
 
-    await remove_item(id)
+    return await remove_item(id)
 
 async def receive_stock_of_item(id: str, inc_stock_quantity: int):
     if inc_stock_quantity < 1:
-        logger.error("Stock quantity must be a number greater than one.")
-
-        raise HTTPException(
-            status_code = 422,
-            detail = {
-                "error": "INVALID_QUANTITY",
-                "msg": f"Must provide a number greater than one."
-            }
-        )
+        logger.info("Stock quantity must be a number greater than one.")
+        return {"error": "QUANTITY_LESS_THAN_ONE"}
 
     item_obj = await get_by_id(id)
 

@@ -72,6 +72,9 @@ GET http://localhost:3000/orders/order01 HTTP/1.1
 
 GET http://localhost:8001/orders/order031 HTTP/1.1
 
+###
+# cancel order
+POST http://localhost:8001/orders/order001/cancel HTTP/1.1
 
 ###
 #bad order

@@ -1,2 +1,0 @@
-fastapi[standard]
-asgi-correlation-id

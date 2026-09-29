@@ -39,12 +39,6 @@ async def get_all_items():
 
         if res.status_code == 200 and not res.json():
             logger.info("No items found")
-            return res
-
-        # needs testing
-        if res.status_code == 404:
-            logger.error(f"Not found, {res.url}")
-            return None
 
         return res.json()
 

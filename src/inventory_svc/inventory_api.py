@@ -43,20 +43,9 @@ async def get_all_items():
     return res
 
 @app.get("/items/low-stock")
-async def low_inventory(stock_qty: int = 5):
+async def low_inventory(low_stock_quantity: int = 5):
     logger.info("Request received to fetch low-stock items")
-    res = await inventory_svc.get_items_low_in_stock(stock_qty)
-
-    if res is None:
-        raise HTTPException(
-            status_code = 404,
-            detail = {
-                "error": "URL_NOT_FOUND?",
-                "msg": f"URL {res.url} is not avail"
-            }
-        )
-
-    return res
+    return await inventory_svc.get_items_low_in_stock(low_stock_quantity)
 
 @app.get("/items/{id}")
 async def get_item(id):

@@ -8,14 +8,17 @@ logger = logging.getLogger(__name__)
 async def get_all_items():
     return await inv_repo.get_all_items()
 
-async def get_items_low_in_stock(stock_qty):
+async def get_items_low_in_stock(low_stock_quantity: int):
+    if low_stock_quantity < 0:
+        raise ValueError(f"Stock quantity can't be smaller than 0. Provided value {low_stock_quantity}")
+
     logger.info("Fetching low-stock items")
 
     res = await get_all_items()
 
-    if res is None: return None
+    if not res: return []
 
-    low_stock_items = [ item for item in res if item.get("stock_quantity") <= 5 ]
+    low_stock_items = [ item for item in res if item.get("stock_quantity") <= low_stock_quantity ]
 
     return {"low_stock_items": low_stock_items}
 

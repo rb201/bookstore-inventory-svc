@@ -54,7 +54,7 @@ POST http://localhost:8000/items/BK-1007/receive?stock_quantity=1 HTTP/1.1
 
 ###
 
-GET http://localhost:8000/items/low-stock HTTP/1.1
+GET http://localhost:8000/items/low-stock?stock_quantity=0 HTTP/1.1
 
 ###
 

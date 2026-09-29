@@ -27,9 +27,7 @@ async def test_get_items_low_in_stock_none(mocker):
 
     mocker.patch(
         "inventory_svc.inventory_svc.inv_repo.get_all_items",
-        return_value =  {
-            "low_stock_items": []
-        }
+        return_value = []
     )
 
     result = await inventory_svc.get_items_low_in_stock(3)
@@ -44,31 +42,27 @@ async def test_get_items_low_in_stock_success(mocker):
         "inventory_svc.inventory_svc.inv_repo.get_all_items",
         return_value = [
             {
-                "low_stock_items": [
-                    {
-                    "id": "BK-1005",
-                    "title": "Thinking, Fast and Slow",
-                    "author": "Daniel Kahneman",
-                    "genre": "Psychology",
-                    "price": 18,
-                    "stock_quantity": 1,
-                    "isbn": "978-0374533557"
-                    },
-                    {
-                    "id": "BK-1006",
-                    "title": "Project Hail Mary",
-                    "author": "Andy Weir",
-                    "genre": "Sci-Fi",
-                    "price": 16.99,
-                    "stock_quantity": 4,
-                    "isbn": "978-0593135204"
-                    }
-                ]
+            "id": "BK-1005",
+            "title": "Thinking, Fast and Slow",
+            "author": "Daniel Kahneman",
+            "genre": "Psychology",
+            "price": 18,
+            "stock_quantity": 1,
+            "isbn": "978-0374533557"
+            },
+            {
+            "id": "BK-1006",
+            "title": "Project Hail Mary",
+            "author": "Andy Weir",
+            "genre": "Sci-Fi",
+            "price": 16.99,
+            "stock_quantity": 4,
+            "isbn": "978-0593135204"
             }
         ]
     )
 
     result = await inventory_svc.get_items_low_in_stock(5)
 
-    assert len(result) == 2
-    assert result[0]["stock_quantity"] <= 5
+    assert len(result["low_stock_items"]) == 2
+    assert result["low_stock_items"][0]["stock_quantity"] <= 5

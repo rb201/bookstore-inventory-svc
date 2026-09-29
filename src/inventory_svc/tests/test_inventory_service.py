@@ -11,7 +11,6 @@ async def test_get_all_items_success(mocker):
         return_value=[
             {
                 "book_id": "BK-1001",
-                "title": "Python Basics"
             }
         ]
     )
@@ -41,22 +40,10 @@ async def test_get_items_low_in_stock_success(mocker):
         "inventory_svc.inventory_svc.inv_repo.get_all_items",
         return_value = [
             {
-            "id": "BK-1005",
-            "title": "Thinking, Fast and Slow",
-            "author": "Daniel Kahneman",
-            "genre": "Psychology",
-            "price": 18,
             "stock_quantity": 1,
-            "isbn": "978-0374533557"
             },
             {
-            "id": "BK-1006",
-            "title": "Project Hail Mary",
-            "author": "Andy Weir",
-            "genre": "Sci-Fi",
-            "price": 16.99,
             "stock_quantity": 4,
-            "isbn": "978-0593135204"
             }
         ]
     )

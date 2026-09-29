@@ -62,7 +62,7 @@ async def remove_item(id):
 
 async def receive_stock_of_item(id: str, inc_stock_quantity: int):
     if inc_stock_quantity < 1:
-        logger.info("Stock quantity must be a number greater than one.")
+        logger.info("Stock quantity must be a number greater than zero.")
         raise exceptions.QuantityInvalid(
             item_id = id,
             detail = {

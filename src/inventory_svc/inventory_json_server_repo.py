@@ -35,7 +35,7 @@ async def get_all_items():
     logger.debug("Fetching all items")
 
     async with httpx.AsyncClient() as client:
-        res = await client.get(f"http://localhost:3000/items2/")
+        res = await client.get(f"http://localhost:3000/items/")
 
         if res.status_code == 200 and not res.json():
             logger.info("No items found")

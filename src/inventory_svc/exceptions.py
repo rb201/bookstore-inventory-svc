@@ -41,6 +41,16 @@ class JsonServerRepoError(Exception):
         super().__init__(self.msg)
 
 
+class InvalidQuantityThreshold(Exception):
+    def __init__(self, detail: str|dict = "", quantity: int = 0):
+        self.detail = detail
+        self.quantity = quantity
+        self.status_code = 422
+        self.msg = f"Quantity can not be lower than 1. Quantity provided: {quantity}. {detail}"
+
+        super().__init__(self.msg)
+
+
 async def item_by_id_not_found_handler(request, err):
     return JSONResponse(
         status_code = err.status_code,
@@ -77,11 +87,21 @@ async def json_server_repo_error_handler(req, err):
         }
     )
 
+async def invalid_quantity_threshold(req, err):
+    return JSONResponse(
+        status_code = err.status_code,
+        content = {
+            "error": "INVALID_QUANTITY",
+            "detail": err.msg
+        }
+    )
+
 EXCEPTION_HANDLERS = {
     ItemByIdNotFound: item_by_id_not_found_handler,
     ItemExists: item_exists_handler,
     QuantityInvalid: quantity_invalid_handler,
-    JsonServerRepoError: json_server_repo_error_handler
+    JsonServerRepoError: json_server_repo_error_handler,
+    InvalidQuantityThreshold: invalid_quantity_threshold
 }
 
 def register_exception_handlers(app: FastAPI):

@@ -28,12 +28,13 @@ async def get_by_id(id: str):
 async def get_by_isbn(isbn: str):
     return await inv_repo.get_by_isbn(isbn)
 
+#reformat add_new_item()
 async def add_new_item(item):
     logger.info(f"Checking to see if ISBN {item.isbn} already exists")
     does_isbn_exist = await get_by_isbn(item.isbn)
 
     if does_isbn_exist is None:
-        logger.info(f"Adding new item {item.id} to inventory")
+        logger.info(f"Adding new item {item.isbn} to inventory")
         post_res = await inv_repo.post_new_item(item)
 
         return post_res
@@ -60,7 +61,7 @@ async def remove_item(id):
             }
         )
 
-    return await remove_item(id)
+    return await inv_repo.remove_item(id)
 
 async def receive_stock_of_item(id: str, inc_stock_quantity: int):
     if inc_stock_quantity < 1:

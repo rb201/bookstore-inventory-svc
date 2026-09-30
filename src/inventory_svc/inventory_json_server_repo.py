@@ -54,7 +54,7 @@ async def post_new_item(item):
 
         logger.info("New item was stored")
 
-        return res
+        return res.json()
 
 
 async def remove_item(id):

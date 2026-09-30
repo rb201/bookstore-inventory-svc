@@ -42,7 +42,6 @@ async def get_all_items():
 
         return res.json()
 
-# this needs testing
 async def post_new_item(item):
     async with httpx.AsyncClient() as client:
         payload = item.model_dump()
@@ -55,7 +54,6 @@ async def post_new_item(item):
         logger.info("New item was stored")
 
         return res.json()
-
 
 async def remove_item(id):
     logger.debug(f"Removing item `{id}")

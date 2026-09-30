@@ -33,20 +33,20 @@ async def add_new_item(item):
     logger.info(f"Checking to see if ISBN {item.isbn} already exists")
     does_isbn_exist = await get_by_isbn(item.isbn)
 
-    if does_isbn_exist is None:
-        logger.info(f"Adding new item {item.isbn} to inventory")
-        post_res = await inv_repo.post_new_item(item)
+    if does_isbn_exist is not None:
+        logger.info(f"New item's ISBN `{item.isbn}` already exists.")
+        raise exceptions.ItemExists(
+            id = item.isbn,
+            detail = {
+                "error": "ITEM_EXISTS",
+                "detail": f"Can not add item with isbn {item.isbn} to inventory"
+            }
+        )
 
-        return post_res
+    logger.info(f"Adding new item {item.isbn} to inventory")
+    post_res = await inv_repo.post_new_item(item)
 
-    logger.info(f"New item's ISBN `{item.isbn}` already exists. New item rejected")
-    raise exceptions.ItemExists(
-        id = item.isbn,
-        detail = {
-            "error": "ITEM_EXISTS",
-            "detail": f"Can not add item with isbn {item.isbn} to inventory"
-        }
-    )
+    return post_res
 
 async def remove_item(id):
     res = await get_by_id(id)

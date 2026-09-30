@@ -139,7 +139,7 @@ async def test_add_new_item_isbn_already_exists(mocker):
     )
 
     with pytest.raises(exceptions.ItemExists):
-        result = await inventory_svc.add_new_item(mock_item_obj)
+        await inventory_svc.add_new_item(mock_item_obj)
 
 @pytest.mark.asyncio
 async def test_add_new_item_success(mocker):
@@ -161,3 +161,113 @@ async def test_add_new_item_success(mocker):
     result = await inventory_svc.add_new_item(mock_item_obj)
 
     assert result["id"] == "VjuvLTIJp78"
+
+@pytest.mark.asyncio
+async def test_receive_stock_of_item_quantity_invalid():
+    book_id = "BK-0000"
+    stock_quantity = 0
+
+    with pytest.raises(exceptions.QuantityInvalid):
+        await inventory_svc.receive_stock_of_item(book_id, stock_quantity)
+
+@pytest.mark.asyncio
+async def test_receive_stock_of_item_item_not_exists(mocker):
+    book_id = "BK-0000"
+    stock_quantity = 10
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.get_by_id",
+        return_value = None
+    )
+
+    with pytest.raises(exceptions.ItemByIdNotFound):
+        await inventory_svc.receive_stock_of_item(book_id, stock_quantity)
+
+@pytest.mark.asyncio
+async def test_receive_stock_of_item_successful(mocker):
+    book_id = "BK-0000"
+    stock_quantity = 10
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.get_by_id",
+        return_value = {
+            "id": "BK-0000",
+            "stock_quantity": 12
+            }
+    )
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.inv_repo.inc_stock_of_item",
+        return_value = {
+            "id": "BK-0000",
+            "stock_quantity": 22
+            }
+    )
+
+    result = await inventory_svc.receive_stock_of_item(book_id, stock_quantity)
+
+    result["stock_quantity"] == 22
+
+@pytest.mark.asyncio
+async def test_sold_stock_of_item_quantity_invalid(mocker):
+    book_id = "BK-0000"
+    stock_quantity = 100
+
+    
+    mocker.patch(
+        "inventory_svc.inventory_svc.get_by_id",
+        return_value = {
+            "id": "BK-0000",
+            "stock_quantity": 3
+        }
+    )
+
+    with pytest.raises(exceptions.QuantityInvalid):
+        await inventory_svc.sold_stock_of_item(book_id, stock_quantity)
+
+@pytest.mark.asyncio
+async def test_sold_stock_of_item_item_not_exists(mocker):
+    book_id = "BK-0000"
+    sold = 10
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.get_by_id",
+        return_value = None
+    )
+
+    with pytest.raises(exceptions.ItemByIdNotFound):
+        await inventory_svc.sold_stock_of_item(book_id, sold)
+
+@pytest.mark.asyncio
+async def test_sold_stock_of_item_successful(mocker):
+    book_id = "BK-0000"
+    cur_stock_quantity = 12
+    sell_quantity = 10
+    updated_quantity = cur_stock_quantity - sell_quantity
+
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.get_by_id",
+        return_value = {
+            "id": "BK-0000",
+            "stock_quantity": cur_stock_quantity
+            }
+    )
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.inv_repo.dec_stock_of_item",
+        return_value = {
+            "msg": f"BK-0000 quantity updated from {cur_stock_quantity} to {updated_quantity}"
+        }
+    )
+
+    mocker.patch(
+        "inventory_svc.inventory_svc.inv_repo.dec_stock_of_item",
+        return_value = {
+            "stock_quantity": updated_quantity
+        }
+    )
+
+    result = await inventory_svc.sold_stock_of_item(book_id, sell_quantity)
+
+    assert result["stock_quantity"] == 2

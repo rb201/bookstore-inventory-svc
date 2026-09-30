@@ -125,7 +125,4 @@ async def sold_stock_of_item(id: str, stock_to_sell: int):
 
     stock_qty_payload = {"stock_quantity": new_stock_qty}
 
-    item_count_res = await inv_repo.dec_stock_of_item(id, stock_qty_payload)
-
-    if item_count_res.status_code == 200:
-        return {'msg': f"{id} quatity updated from {cur_stock_qty} to {new_stock_qty}"}
+    return await inv_repo.dec_stock_of_item(id, stock_qty_payload)

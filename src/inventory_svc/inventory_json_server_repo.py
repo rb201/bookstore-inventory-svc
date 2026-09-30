@@ -82,7 +82,7 @@ async def dec_stock_of_item(id: str, payload: int):
 
             logger.info(f"{id} quantity decreased to {payload.get("stock_quantity")}")
 
-            return res
+            return res.json()
     except httpx.HTTPError as err:
         raise JsonServerRepoError(f"Dont know what happened, {err}")
 

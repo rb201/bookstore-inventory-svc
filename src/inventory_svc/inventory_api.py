@@ -62,7 +62,7 @@ async def get_item(id):
 
 @app.post('/items')
 async def add_new_item(item: NewItem):
-    logger.info(f"Request received to add new item received. Book ID: `{item}`")
+    logger.info(f"Request received to add new item received. Item `{item}`")
     return await inventory_svc.add_new_item(item)
 
 @app.delete("/items/{id}")

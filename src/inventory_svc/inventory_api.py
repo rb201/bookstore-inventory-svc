@@ -20,27 +20,7 @@ exceptions.register_exception_handlers(app)
 @app.get("/items")
 async def get_all_items():
     logger.info("Request received to fetch all items")
-    res = await inventory_svc.get_all_items()
-
-    if not res:
-        raise HTTPException(
-            status_code = 404,
-            detail = {
-                "info": "ITEMS_NOT_FOUND",
-                "msg": "There were no items returned"
-            }
-        )
-
-    if res is None:
-        raise HTTPException(
-            status_code = 404,
-            detail = {
-                "error": "URL_NOT_FOUND?",
-                "msg": f"URL {res.url} is not avail"
-            }
-        )
-
-    return res
+    return await inventory_svc.get_all_items()
 
 @app.get("/items/low-stock")
 async def low_inventory(low_stock_quantity: int = 5):

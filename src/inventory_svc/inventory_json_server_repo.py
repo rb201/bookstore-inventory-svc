@@ -40,6 +40,15 @@ async def get_all_items():
         if res.status_code == 200 and not res.json():
             logger.info("No items found")
 
+        if res.status_code == 404:
+            raise JsonServerRepoError(
+                status_code = 404,
+                detail = {
+                    "error": "URL_NOT_FOUND?",
+                    "msg": f"URL {res.url} is not avail"
+                }
+            )
+
         return res.json()
 
 async def post_new_item(item):

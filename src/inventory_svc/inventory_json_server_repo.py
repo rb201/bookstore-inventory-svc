@@ -1,8 +1,6 @@
-# TODO MOVE ALL HTTPEXCEPTIONS TO API LAYER
-
 import logging
 
-import httpx
+import httpx2 as httpx
 
 from .exceptions import JsonServerRepoError
 

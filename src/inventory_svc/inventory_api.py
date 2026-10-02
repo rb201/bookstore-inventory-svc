@@ -38,7 +38,6 @@ async def get_item(id):
             detail = ""
         )
     return res
-# modify inv
 
 @app.post('/items')
 async def add_new_item(item: NewItem):
@@ -49,9 +48,6 @@ async def add_new_item(item: NewItem):
 async def remove_item(id: str):
     logger.info(f"Request received to remove item: `{id}`")
     return await inventory_svc.remove_item(id)
-
-
-#inv sold/receive
 
 @app.post("/items/{id}/receive")
 async def item_stock_receive(id: str, stock_quantity: int):

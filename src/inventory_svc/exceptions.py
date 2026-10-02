@@ -13,7 +13,7 @@ class ItemByIdNotFound(Exception):
 
 class ItemExists(Exception):
     """Exception raised when item is already existent"""
-    def __init__(self, id: str, detail: str | dict, status_code: int = 422):
+    def __init__(self, id: str, detail: str | dict, status_code: int = 409):
         self.id = str
         self.status_code = status_code
         self.detail = detail

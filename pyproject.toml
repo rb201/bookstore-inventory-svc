@@ -22,3 +22,8 @@ inventory-svc = "inventory_svc:main"
 [build-system]
 requires = ["uv_build>=0.12.17,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:The anyio\\.abc\\.BlockingPortal alias is deprecated:DeprecationWarning",
+]

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: inv-pg
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: inventory
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/inv-data
+
+volumes:
+  postgres_data:

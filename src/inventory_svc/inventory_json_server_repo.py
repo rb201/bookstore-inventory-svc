@@ -1,3 +1,10 @@
+##########################
+# DEPRECATED             #
+# BUT CAN BE USED        #
+# IF JSON-SERVER NEEDED  #
+##########################
+
+
 import logging
 
 import httpx2 as httpx

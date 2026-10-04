@@ -13,3 +13,6 @@ wheels/
 src/inventory_svc/api.http
 jsons-srv/node_modules
 jsons-srv/data.json
+
+# sensitive
+.env

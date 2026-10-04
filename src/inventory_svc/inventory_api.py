@@ -23,9 +23,9 @@ async def get_all_items():
     return await inventory_svc.get_all_items()
 
 @app.get("/items/low-stock")
-async def low_inventory(low_stock_quantity: int = 5):
+async def low_inventory(stock_quantity: int = 5):
     logger.info("Request received to fetch low-stock items")
-    return await inventory_svc.get_items_low_in_stock(low_stock_quantity)
+    return await inventory_svc.get_items_low_in_stock(stock_quantity)
 
 @app.get("/items/{id}")
 async def get_item(id):

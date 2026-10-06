@@ -21,4 +21,8 @@ RUN uv sync --frozen --no-cache --no-dev
 
 EXPOSE 8001
 
-CMD ["uv", "run", "fastapi", "/app/src/inventory_svc/main.py"]
+# prod
+# CMD ["/app/.venv/bin/fastapi", "run", "/app/src/inventory_svc/main.py"]
+
+# dev
+CMD ["uv", "run", "fastapi", "dev", "/app/src/inventory_svc/main.py", "--host", "0.0.0.0"]

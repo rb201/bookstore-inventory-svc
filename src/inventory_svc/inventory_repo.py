@@ -1,11 +1,17 @@
 import logging
+import os
 
 import psycopg
+from dotenv import load_dotenv
 from psycopg.rows import dict_row
 
 from inventory_svc.schemas import NewItem
 
 logger = logging.getLogger(__name__)
+
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 async def get_all_items():
     async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:

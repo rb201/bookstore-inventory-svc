@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 
 from . import inventory_svc, exceptions
-from inventory_svc.schemas import NewItem
+from inventory_svc.schemas import NewItem, InventoryReservationRequest
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ async def remove_item(id: str):
     logger.info(f"Request received to remove item: `{id}`")
     return await inventory_svc.remove_item(id)
 
+# the following two endpoints may not be neccessary
 @app.post("/items/{id}/receive")
 async def item_stock_receive(id: str, stock_quantity: int):
     logger.info(f"Request received to increase item {id} stock by {stock_quantity}")
@@ -64,3 +65,7 @@ async def adjust_stock_count(id: str, stock_quantity: int):
     logger.info(f"Request received to adjust item {id} stock")
     pass
 
+@app.post("/inventory/reserve")
+async def check_inventory_and_stock(request: InventoryReservationRequest):
+    logger.info(f"Request received to check inventory and quantities")
+    return await inventory_svc.process_reserve_request(request)

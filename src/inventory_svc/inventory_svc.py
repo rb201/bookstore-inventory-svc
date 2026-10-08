@@ -106,7 +106,7 @@ async def receive_stock_of_item(id: str, inc_stock_quantity: int):
 
     return await inv_repo.update_stock_of_item(id, new_stock_qty)
 
-async def sold_stock_of_item(id: str, stock_to_sell: int):
+async def reduce_stock_of_item(id: str, stock_to_sell: int):
     item = await get_by_id(id)
 
     if item is None:
@@ -139,3 +139,121 @@ async def sold_stock_of_item(id: str, stock_to_sell: int):
         )
 
     return await inv_repo.update_stock_of_item(id, new_stock_qty)
+
+async def process_reserve_request(request):
+    reservation_id = request.reservation_id
+    items = request.items
+
+    item_not_in_inv, item_not_enough_inv = await check_inventory_and_stock(items)
+
+    if item_not_in_inv or item_not_enough_inv:
+        return await validate_inventory_check(item_not_in_inv, item_not_enough_inv)
+
+    for item in items:
+        reservation_exists = await check_reservation_exists(reservation_id, item)
+        if reservation_exists:
+            continue
+
+        await reduce_stock_of_item(item.book_id, item.quantity)
+        await inv_repo.create_reservation(reservation_id, item)
+
+    return {'msg': 'ok'}
+
+async def check_inventory_and_stock(items):
+    logger.info(
+        "Checking inventory availability",
+        extra = {
+            "event": "inventory_availability_request",
+            "correlation_id": correlation_id.get(),
+        }
+    )
+    item_not_in_inv = []
+    item_not_enough_inv = []
+
+    for item in items:
+        logger.info(f"OrderItem: Item {item.title}: qty {item.quantity}")
+        res = await inv_repo.get_by_id(item.book_id)
+
+        if res is None:
+            logger.info(
+                f"Item {item.book_id} not found in inv",
+                extra = {
+                    "event": "item_not_found_in_inventory",
+                    "correlation_id": correlation_id.get(),
+                    "book_id": item.book_id
+                }
+            )
+            item_not_in_inv.append(item.book_id)
+            continue
+
+        item_inv_qty = res.get('stock_quantity')
+        logger.info(f"Item {item.book_id} current stock {item_inv_qty}")
+
+        if item_inv_qty < item.quantity:
+            logger.info(
+                f"Item {item.book_id} does not have enough inv",
+                extra = {
+                    "event": "inventory_availability_request",
+                    "correlation_id": correlation_id.get(),
+                    "book_id": item.book_id,
+                    "current_inventory": item_inv_qty,
+                    "requested_inventory": item.quantity
+                })
+            item_not_enough_inv.append(item.book_id)
+
+    return item_not_in_inv, item_not_enough_inv
+
+async def validate_inventory_check(item_not_in_inv, item_not_enough_inv):
+    order_errors = []
+
+    if item_not_in_inv:
+        logger.info(
+            f"Order can not be completed. These items do not exist {item_not_in_inv}",
+            extra = {
+                "event": "create_order_failed",
+                "correlation_id": correlation_id.get(),
+                "items": item_not_in_inv
+            }
+        )
+
+        items_not_found_error_msg = {
+            "error": "ITEMS_NOT_FOUND",
+            "msg": f"These items were not found {item_not_in_inv}"
+        }
+
+        order_errors.append(items_not_found_error_msg)
+
+    if item_not_enough_inv:
+        logger.info(
+            f"Order can not be completed. Insufficient inv for items {item_not_enough_inv}",
+            extra = {
+                "event": "create_order_failed",
+                "correlation_id": correlation_id.get(),
+                "items": item_not_enough_inv,
+            }
+        )
+
+        items_not_enough_inv_msg = {
+            "error": "INSUFFICIENT_INV",
+            "msg": f"These items don't have enough inv {item_not_enough_inv}"
+        }
+        order_errors.append(items_not_enough_inv_msg)
+
+    if order_errors:
+        order_error_msg = {
+            "error": "ORDER_UNPROCESSABLE",
+            "msg": "Unable to process this order. See details below",
+        }
+        order_error_msg["details"] = order_errors
+
+    logger.info(order_error_msg)
+    return order_error_msg
+
+async def check_reservation_exists(reservation_id, item):
+    logger.info(f"/Checking if reservation already exist for item {item.book_id}")
+    reserve_exists = await inv_repo.check_reservation_exists(reservation_id, item)
+
+    if reserve_exists:
+        logger.info(f"Reservation exists for item {item.book_id}")
+        return True
+    return False

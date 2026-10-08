@@ -90,11 +90,47 @@ async def update_stock_of_item(id: str, stock_quantity: int):
                 UPDATE inventory
                 SET stock_quantity = %s
                 WHERE id = %s
+                RETURNING id, stock_quantity
                 """,
                 (stock_quantity, id,)
             )
 
             await conn.commit()
 
-            logger.info(f"Update stock quantity for item id {id} successfully")
+            res = await cur.fetchone()
 
+            logger.info(f"Update stock quantity for item id {id} successfully")
+            return res
+
+async def create_reservation(reservation_id, item):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                """
+                INSERT INTO inventory_reservations (reservation_id, item_id, quantity, status)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (reservation_id, item.book_id, item.quantity, "RESERVED")
+            )
+
+            await conn.commit()
+            logger.info("Reservation created")
+            return True
+
+# fix table column name item_id to book_id
+async def check_reservation_exists(reservation_id, item):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                """
+                SELECT * FROM inventory_reservations
+                WHERE reservation_id = %s and item_id = %s
+                """,
+                (reservation_id, item.book_id)
+            )
+            reserve_exists = await cur.fetchone()
+
+            if reserve_exists:
+                return True
+
+            return

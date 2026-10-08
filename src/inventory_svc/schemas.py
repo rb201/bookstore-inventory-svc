@@ -8,3 +8,17 @@ class NewItem(BaseModel):
     stock_quantity: int
     isbn: str 
     # history: list[dict]
+
+
+class OrderItem(BaseModel):
+    book_id: str
+    title: str
+    isbn: str
+    price: float
+    quantity: int
+    subtotal: float
+
+
+class InventoryReservationRequest(BaseModel):
+    reservation_id: str
+    items: list[OrderItem]

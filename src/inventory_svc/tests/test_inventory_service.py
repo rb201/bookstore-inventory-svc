@@ -97,13 +97,15 @@ async def test_get_item_by_isbn_success(mocker):
 
 @pytest.mark.asyncio
 async def test_remove_item_that_does_not_exist(mocker):
+    book_id = "BK-1004zzz"
+
     mocker.patch(
         "inventory_svc.inventory_svc.inv_repo.get_by_id",
         return_value = None
     )
 
-    with pytest.raises(exceptions.ItemByIdNotFound, match = "ITEM_BY_ID_DOES_NOT_EXISTS"):
-        result = await inventory_svc.remove_item("BK-1004zzz")
+    with pytest.raises(exceptions.ItemByIdNotFound, match = f"Item {book_id} not found."):
+        result = await inventory_svc.remove_item(book_id)
 
 @pytest.mark.asyncio
 async def test_remove_item_success(mocker):
@@ -152,7 +154,7 @@ async def test_add_new_item_success(mocker):
     )
 
     mock_post_new_item = mocker.patch(
-        "inventory_svc.inventory_svc.inv_repo.post_new_item",
+        "inventory_svc.inventory_svc.inv_repo.add_new_item",
         return_value = {
             "id": "VjuvLTIJp78"
         }
@@ -197,7 +199,7 @@ async def test_receive_stock_of_item_successful(mocker):
     )
 
     mocker.patch(
-        "inventory_svc.inventory_svc.inv_repo.inc_stock_of_item",
+        "inventory_svc.inventory_svc.inv_repo.update_stock_of_item",
         return_value = {
             "id": "BK-0000",
             "stock_quantity": 22
@@ -223,7 +225,7 @@ async def test_sold_stock_of_item_quantity_invalid(mocker):
     )
 
     with pytest.raises(exceptions.QuantityInvalid):
-        await inventory_svc.sold_stock_of_item(book_id, stock_quantity)
+        await inventory_svc.reduce_stock_of_item(book_id, stock_quantity)
 
 @pytest.mark.asyncio
 async def test_sold_stock_of_item_item_not_exists(mocker):
@@ -236,7 +238,7 @@ async def test_sold_stock_of_item_item_not_exists(mocker):
     )
 
     with pytest.raises(exceptions.ItemByIdNotFound):
-        await inventory_svc.sold_stock_of_item(book_id, sold)
+        await inventory_svc.reduce_stock_of_item(book_id, sold)
 
 @pytest.mark.asyncio
 async def test_sold_stock_of_item_successful(mocker):
@@ -255,19 +257,12 @@ async def test_sold_stock_of_item_successful(mocker):
     )
 
     mocker.patch(
-        "inventory_svc.inventory_svc.inv_repo.dec_stock_of_item",
-        return_value = {
-            "msg": f"BK-0000 quantity updated from {cur_stock_quantity} to {updated_quantity}"
-        }
-    )
-
-    mocker.patch(
-        "inventory_svc.inventory_svc.inv_repo.dec_stock_of_item",
+        "inventory_svc.inventory_svc.inv_repo.update_stock_of_item",
         return_value = {
             "stock_quantity": updated_quantity
         }
     )
 
-    result = await inventory_svc.sold_stock_of_item(book_id, sell_quantity)
+    result = await inventory_svc.reduce_stock_of_item(book_id, sell_quantity)
 
     assert result["stock_quantity"] == 2

@@ -159,42 +159,42 @@ def test_receive_stock_of_item_success(mocker):
     assert res.status_code == 200
     assert res.json()["stock_quantity"] == cur_stock_qty + rec_stock_qty
 
-def test_sell_stock_of_item_invalid_quantity(mocker):
+def test_reduce_stock_of_item_invalid_quantity(mocker):
     id = "BK-0000"
 
     mocker.patch(
-        "inventory_svc.inventory_api.inventory_svc.sold_stock_of_item",
+        "inventory_svc.inventory_api.inventory_svc.reduce_stock_of_item",
         side_effect = exceptions.QuantityInvalid(item_id = id, detail = "")
     )
 
-    res = client.post(f"/items/{id}/sell?stock_quantity=1")
+    res = client.post(f"/items/{id}/reduce?stock_quantity=1")
 
     assert res.status_code == 422
 
-def test_sell_stock_of_item_item_doesnt_exists(mocker):
+def test_reduce_stock_of_item_item_doesnt_exists(mocker):
     id = "BK-0000"
 
     mocker.patch(
-        "inventory_svc.inventory_api.inventory_svc.sold_stock_of_item",
+        "inventory_svc.inventory_api.inventory_svc.reduce_stock_of_item",
         side_effect = exceptions.ItemByIdNotFound(item_id = id, detail = "")
     )
 
-    res = client.post(f"/items/{id}/sell?stock_quantity=1")
+    res = client.post(f"/items/{id}/reduce?stock_quantity=1")
 
     assert res.status_code == 404
     assert res.json()["error"] == "ITEM_BY_ID_NOT_FOUND"
 
-def test_sell_stock_of_item_success(mocker):
+def test_reduce_stock_of_item_success(mocker):
     id = "BK-1001"
     cur_stock_qty = 5
     sell_stock_qty = 3
 
     mocker.patch(
-        "inventory_svc.inventory_api.inventory_svc.sold_stock_of_item",
+        "inventory_svc.inventory_api.inventory_svc.reduce_stock_of_item",
         return_value = {"stock_quantity": 2}
     )
 
-    res = client.post(f"/items/{id}/sell?stock_quantity={sell_stock_qty}")
+    res = client.post(f"/items/{id}/reduce?stock_quantity={sell_stock_qty}")
 
     assert res.status_code == 200
     assert res.json()["stock_quantity"] == cur_stock_qty - sell_stock_qty

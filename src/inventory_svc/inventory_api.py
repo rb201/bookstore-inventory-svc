@@ -55,10 +55,10 @@ async def item_stock_receive(id: str, stock_quantity: int):
     logger.info(f"Request received to increase item {id} stock by {stock_quantity}")
     return await inventory_svc.receive_stock_of_item(id, stock_quantity)
 
-@app.post("/items/{id}/sell")
-async def item_stock_sell(id: str, stock_quantity: int):
+@app.post("/items/{id}/reduce")
+async def item_stock_reduce(id: str, stock_quantity: int):
     logger.info(f"Request received to deccrease item {id} stock by {stock_quantity}")
-    return await inventory_svc.sold_stock_of_item(id, stock_quantity)
+    return await inventory_svc.reduce_stock_of_item(id, stock_quantity)
 
 @app.post("/items/{id}/adjust_stock")
 async def adjust_stock_count(id: str, stock_quantity: int):

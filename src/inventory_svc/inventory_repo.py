@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL") + "/inventory"
 
 async def get_all_items():
     async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:

@@ -1,7 +1,7 @@
 import logging
 
 from asgi_correlation_id import CorrelationIdMiddleware
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 
 from . import inventory_svc, exceptions
@@ -39,7 +39,7 @@ async def get_item(id):
         )
     return res
 
-@app.post('/items')
+@app.post('/items', status_code = status.HTTP_201_CREATED)
 async def add_new_item(item: NewItem):
     logger.info(f"Request received to add new item received. Item `{item}`")
     return await inventory_svc.add_new_item(item)

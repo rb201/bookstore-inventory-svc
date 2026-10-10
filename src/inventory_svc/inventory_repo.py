@@ -57,12 +57,16 @@ async def add_new_item(item: NewItem):
                 """
                 INSERT INTO inventory (title, author, genre, price, stock_quantity, isbn)
                 VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id, isbn
                 """,
                 (item.title, item.author, item.genre, item.price, item.stock_quantity, item.isbn)
             )
 
             await conn.commit()
+            result = await cur.fetchone()
+
             logger.info("Record inserted successfully")
+            return result
 
 async def remove_item(id: str):
     async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
@@ -81,6 +85,8 @@ async def remove_item(id: str):
             deleted_record = await cur.fetchone()
             
             logger.info(f"Record {deleted_record.get("id")} with isbn {deleted_record.get("isbn")} deleted successfully")
+
+            return deleted_record
 
 async def update_stock_of_item(id: str, stock_quantity: int):
     async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:

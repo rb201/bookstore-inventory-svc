@@ -37,12 +37,62 @@ async def test_remove_item_fix(client):
     res = await client.post("/items", json = test_item)
     yield res.json()
 
+@pytest_asyncio.fixture
+async def test_create_reserve_fix(client):
+    reserve_request = {
+        "reservation_id": "cab2f123-6c6d-44dd-9a93-ff58598aaf2f",
+        "items": [
+            {
+                "book_id": "1",
+                "title": "Buddhism For You",
+                "isbn": "987654321",
+                "price": 7.97,
+                "quantity": 1,
+                "subtotal": 7.97
+            },
+            {
+                "book_id": "2",
+                "title": "Buddhism For You",
+                "isbn": "987654321",
+                "price": 7.97,
+                "quantity": 1,
+                "subtotal": 7.97
+            }
+        ]
+    }
+
+    yield reserve_request
+
+    # endpoint doesnt exist yet
+    # await client.delete(f"/items/inventory/reserve/{rid}")
+
+@pytest_asyncio.fixture
+async def test_create_reserve_fail_fix(client):
+    reserve_request = {
+        "reservation_id": "12312123-6c6d-44dd-9a93-ff58598aaf2f",
+        "items": [
+            {
+                "book_id": "1",
+                "title": "Buddhism For You",
+                "isbn": "987654321",
+                "price": 7.97,
+                "quantity": 11111,
+                "subtotal": 7.97
+            }
+        ]
+    }
+
+    yield reserve_request
+
+    # endpoint doesnt exist yet
+    # await client.delete(f"/items/inventory/reserve/{rid}")
+
 @pytest.mark.asyncio
 async def test_get_item_success(client):
     res = await client.get("/items/1")
 
     assert res.status_code == 200
-    assert res.json()["title"] == "test"
+    assert res.json()["title"] == "Mindfulness"
 
 @pytest.mark.asyncio
 async def test_get_item_not_found(client):
@@ -82,3 +132,15 @@ async def test_remove_item_success(client, test_remove_item_fix):
     assert res.status_code == 200
     assert res_data["id"] == test_remove_item_fix["id"]
 
+@pytest.mark.asyncio
+async def test_reserve_items_success(client, test_create_reserve_fix):
+    res = await client.post("/inventory/reserve", json = test_create_reserve_fix)
+    
+    assert res.status_code == 201
+    assert res.json()["msg"] == "ok"
+
+@pytest.mark.asyncio
+async def test_reserve_item_fails(client, test_create_reserve_fail_fix):
+    res = await client.post("/inventory/reserve", json = test_create_reserve_fail_fix)
+
+    assert res.json()["error"] == "ORDER_UNPROCESSABLE"

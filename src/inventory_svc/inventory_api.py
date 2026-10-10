@@ -65,7 +65,7 @@ async def adjust_stock_count(id: str, stock_quantity: int):
     logger.info(f"Request received to adjust item {id} stock")
     pass
 
-@app.post("/inventory/reserve")
+@app.post("/inventory/reserve", status_code = status.HTTP_201_CREATED)
 async def check_inventory_and_stock(request: InventoryReservationRequest):
     logger.info(f"Request received to check inventory and quantities")
     return await inventory_svc.process_reserve_request(request)

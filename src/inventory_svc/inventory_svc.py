@@ -144,18 +144,22 @@ async def process_reserve_request(request):
     reservation_id = request.reservation_id
     items = request.items
 
+    logger.info(f"Checking if reservation already exist")
+    reservation_exists = await inv_repo.check_reservation_exists(reservation_id)
+
+    if reservation_exists:
+        logger.info(f"Reservation exists for {reservation_id}")
+        return {"msg": "reservation already exists"}
+
     item_not_in_inv, item_not_enough_inv = await check_inventory_and_stock(items)
 
     if item_not_in_inv or item_not_enough_inv:
         return await validate_inventory_check(item_not_in_inv, item_not_enough_inv)
 
     for item in items:
-        reservation_exists = await check_reservation_exists(reservation_id, item)
-        if reservation_exists:
-            continue
-
         await reduce_stock_of_item(item.book_id, item.quantity)
-        await inv_repo.create_reservation(reservation_id, item)
+        await inv_repo.create_item_reservation(reservation_id, item)
+    await inv_repo.create_request_reservation(reservation_id, item)
 
     return {'msg': 'ok'}
 
@@ -248,12 +252,3 @@ async def validate_inventory_check(item_not_in_inv, item_not_enough_inv):
 
     logger.info(order_error_msg)
     return order_error_msg
-
-async def check_reservation_exists(reservation_id, item):
-    logger.info(f"/Checking if reservation already exist for item {item.book_id}")
-    reserve_exists = await inv_repo.check_reservation_exists(reservation_id, item)
-
-    if reserve_exists:
-        logger.info(f"Reservation exists for item {item.book_id}")
-        return True
-    return False

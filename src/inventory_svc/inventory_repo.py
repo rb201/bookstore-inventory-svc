@@ -108,35 +108,50 @@ async def update_stock_of_item(id: str, stock_quantity: int):
             logger.info(f"Update stock quantity for item id {id} successfully")
             return res
 
-async def create_reservation(reservation_id, item):
+async def create_request_reservation(reservation_id, item):
     async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
         async with conn.cursor() as cur:
             await cur.execute(
                 """
-                INSERT INTO inventory_reservations (reservation_id, item_id, quantity, status)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO inventory_reservations (reservation_id, item_id, status)
+                VALUES (%s, %s, %s)
                 """,
-                (reservation_id, item.book_id, item.quantity, "RESERVED")
+                (reservation_id, item.book_id, "RESERVED")
             )
 
             await conn.commit()
-            logger.info("Reservation created")
+            logger.info(f"Reservation for book_id {item.book_id} created")
+            return True
+
+async def create_item_reservation(reservation_id, item):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                """
+                INSERT INTO inventory_reservations_items (reservation_id, item_id, quantity)
+                VALUES (%s, %s, %s)
+                """,
+                (reservation_id, item.book_id, item.quantity)
+            )
+
+            await conn.commit()
+            logger.info(f"Reservation created for {reservation_id}")
             return True
 
 # fix table column name item_id to book_id
-async def check_reservation_exists(reservation_id, item):
+async def check_reservation_exists(reservation_id):
     async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
         async with conn.cursor() as cur:
             await cur.execute(
                 """
                 SELECT * FROM inventory_reservations
-                WHERE reservation_id = %s and item_id = %s
+                WHERE reservation_id = %s
                 """,
-                (reservation_id, item.book_id)
+                (reservation_id,)
             )
             reserve_exists = await cur.fetchone()
 
             if reserve_exists:
                 return True
 
-            return
+            return False

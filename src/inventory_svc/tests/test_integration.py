@@ -39,8 +39,9 @@ async def test_remove_item_fix(client):
 
 @pytest_asyncio.fixture
 async def test_create_reserve_fix(client):
+    rid = "cab2f123-6c6d-44dd-9a93-ff58598aaf2f"
     reserve_request = {
-        "reservation_id": "cab2f123-6c6d-44dd-9a93-ff58598aaf2f",
+        "reservation_id": rid,
         "items": [
             {
                 "book_id": "1",
@@ -63,13 +64,13 @@ async def test_create_reserve_fix(client):
 
     yield reserve_request
 
-    # endpoint doesnt exist yet
-    # await client.delete(f"/items/inventory/reserve/{rid}")
+    await client.delete(f"/items/inventory/reserve/{rid}")
 
 @pytest_asyncio.fixture
 async def test_create_reserve_fail_fix(client):
+    rid = "12312123-6c6d-44dd-9a93-ff58598aaf2f"
     reserve_request = {
-        "reservation_id": "12312123-6c6d-44dd-9a93-ff58598aaf2f",
+        "reservation_id": rid,
         "items": [
             {
                 "book_id": "1",
@@ -84,8 +85,7 @@ async def test_create_reserve_fail_fix(client):
 
     yield reserve_request
 
-    # endpoint doesnt exist yet
-    # await client.delete(f"/items/inventory/reserve/{rid}")
+    await client.delete(f"/items/inventory/reserve/{rid}")
 
 @pytest.mark.asyncio
 async def test_get_item_success(client):

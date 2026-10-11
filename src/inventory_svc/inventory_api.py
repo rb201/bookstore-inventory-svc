@@ -69,3 +69,8 @@ async def adjust_stock_count(id: str, stock_quantity: int):
 async def check_inventory_and_stock(request: InventoryReservationRequest):
     logger.info(f"Request received to check inventory and quantities")
     return await inventory_svc.process_reserve_request(request)
+
+@app.delete("/inventory/reserve/{reservation_id}")
+async def delete_reservation(reservation_id: str):
+    logger.info(f"Request received to delete reserved items")
+    return await inventory_svc.delete_reservation(reservation_id)

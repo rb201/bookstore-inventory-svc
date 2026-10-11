@@ -252,3 +252,18 @@ async def validate_inventory_check(item_not_in_inv, item_not_enough_inv):
 
     logger.info(order_error_msg)
     return order_error_msg
+
+async def delete_reservation(reservation_id):
+    logger.info("Looking up reservation_id")
+    reserve_exists = await inv_repo.check_reservation_exists(reservation_id)
+
+    if not reserve_exists:
+        logger.info(f"Reservation {reservation_id} does not exist")
+        return reserve_exists
+
+    removed_reserved_items = await inv_repo.delete_reservation_of_items(reservation_id)
+    removed_reservation = await inv_repo.delete_reservation(reservation_id)
+
+    logger.info(f"Reservation {reservation_id} was deleted")
+
+    return reserve_exists

@@ -155,3 +155,42 @@ async def check_reservation_exists(reservation_id):
                 return True
 
             return False
+
+async def delete_reservation(reservation_id):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                """
+                DELETE FROM inventory_reservations
+                WHERE reservation_id = %s
+                RETURNING reservation_id
+                """,
+                (reservation_id,)
+            )
+            reserve_existed = await cur.fetchone()
+
+            if not reserve_existed:
+                return {"msg": f"Reservation {reservation_id} does not exist"}
+
+            return reserve_existed
+
+async def delete_reservation_of_items(reservation_id):
+    async with await psycopg.AsyncConnection.connect(DATABASE_URL, row_factory = dict_row) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                """
+                DELETE FROM inventory_reservations_items
+                WHERE reservation_id = %s
+                RETURNING reservation_id, item_id
+                """,
+                (reservation_id,)
+            )
+            reserve_existed = await cur.fetchall()
+
+            if not reserve_existed:
+                logger.info(f"Reservation {reservation_id} does not exist")
+                return {"msg": f"Reservation {reservation_id} does not exist"}
+
+            logger.info(f"Reservation removed for the following: {reserve_existed}")
+
+            return reserve_existed
